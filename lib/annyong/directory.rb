@@ -1,6 +1,6 @@
 module Annyong
   class Directory < Rack::Directory
-    DIR_FILE = "<tr><td class='name'><a href='%s'>%s</a></td><td class='size'>%s</td><td class='type'>%s</td><td class='mtime'>%s</td></tr>"
+    DIR_FILE = "<tr><td class='name'><a href='%s'>%s</a>%s</td><td class='size'>%s</td><td class='type'>%s</td><td class='mtime'>%s</td></tr>"
     DIR_PAGE = <<-PAGE
 <!doctype html>
 <html><head>
@@ -26,8 +26,11 @@ module Annyong
 
     def each
       show_path = @path.sub(/^#{@root}/,'')
-      files = @files.map{|f| DIR_FILE % f }*"\n"
-      page  = DIR_PAGE % [ show_path, show_path , files ]
+      files = @files.map{|f|
+        audio = f[1] =~ /(mp3|ogg)$/i ? "<audio src='#{f[1]}' controls></audio>" : ""
+        f = f.insert(2, audio)
+        DIR_FILE % f }*"\n"
+      page  = DIR_PAGE % [ show_path, show_path, files ]
       page.each_line{|l| yield l }
     end
 
